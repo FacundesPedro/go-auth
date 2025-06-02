@@ -21,12 +21,12 @@ func main() {
 	gob.Register(domain.LocalUser{})
 	gob.Register(&oauth2.Token{})
 	//
-	baseURL := func() string {
+	baseURL := (func() string {
 		if v := os.Getenv("APP_BASE_URL"); v != "" {
 			return v
 		}
 		return "http://localhost"
-	}()
+	})()
 	clientID := os.Getenv("OAUTH_CLIENT_ID")
 	clientSecret := os.Getenv("OAUTH_CLIENT_SECRET")
 	port := 5000
