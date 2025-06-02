@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"text/template"
 
@@ -80,7 +79,6 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("./public/index.html")
 	if err != nil {
-		log.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
