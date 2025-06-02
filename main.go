@@ -8,9 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
-	"github.com/alexedwards/scs/v2"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -39,12 +37,7 @@ func main() {
 		Endpoint:     google.Endpoint,
 	}
 	// Initialize the session manager
-	sessionManager := scs.New()
-	sessionManager.Lifetime = 5 * time.Second
-	sessionManager.Cookie.Persist = true
-	sessionManager.Cookie.Secure = true // Enable when using HTTPS
-	//
-	// sessionManager.Store = redisstore.New(redisClient)
+	sessionManager := domain.NewSessionManager()
 	//
 	app := handler.NewApp(oauthConfig, sessionManager)
 	router := http.NewServeMux()
