@@ -1,6 +1,9 @@
-package handler
+package handlers
 
 import (
+	"FacundesPedro/go-auth/constants"
+	"FacundesPedro/go-auth/domain"
+	"FacundesPedro/go-auth/dto"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,26 +11,11 @@ import (
 	"net/http"
 	"text/template"
 
-	"FacundesPedro/go-auth/constants"
-	"FacundesPedro/go-auth/domain"
-	"FacundesPedro/go-auth/dto"
-
-	"github.com/alexedwards/scs/v2"
 	"golang.org/x/oauth2"
 )
 
-type App struct {
-	config         *oauth2.Config
-	sessionManager *scs.SessionManager
-}
-
-// NewApp constructs the application handler
-func NewApp(config *oauth2.Config, sessionManager *scs.SessionManager) *App {
-	return &App{config: config, sessionManager: sessionManager}
-}
-
 // LoginHandler serves the login page
-func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AppGoogle) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("./public/index.html")
 	if err != nil {
 		log.Print(err)
@@ -38,13 +26,13 @@ func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // OAuthHandler redirects to Google OAuth consent screen
-func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AppGoogle) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 	url := a.config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 // OAuthCallbackHandler exchanges code, fetches user info, and stores session
-func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AppGoogle) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	token, err := a.config.Exchange(context.Background(), code)
 	if err != nil {
@@ -76,7 +64,7 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // RefreshHandler refreshes the OAuth token and updates the session
-func (a *App) RefreshHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AppGoogle) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	raw := a.sessionManager.Get(ctx, "oauthToken")
 	token, ok := raw.(*oauth2.Token)

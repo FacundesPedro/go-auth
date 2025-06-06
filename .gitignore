@@ -1,0 +1,27 @@
+# Ignora binários
+go-auth
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Ignora diretórios de desenvolvimento
+vendor/
+bin/
+obj/
+
+# Ignora arquivos temporários
+*.log
+*.tmp
+*.out
+
+# Ignora arquivos de editor
+*.swp
+*~
+.idea/
+.vscode/
+*.code-workspace
+
+.env
