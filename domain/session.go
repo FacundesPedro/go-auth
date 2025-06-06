@@ -3,46 +3,27 @@ package domain
 import (
 	"FacundesPedro/go-auth/utils"
 	"database/sql"
-	"fmt"
-	"log"
-	"time"
 
-	"github.com/alexedwards/scs/v2"
+	"github.com/gorilla/sessions"
 )
 
-func NewSessionManager(db *sql.DB) *scs.SessionManager {
+func NewSessionManager(db *sql.DB) *sessions.CookieStore {
 
 	// var SessionManager *scs.SessionManager
 	// Initialize the session manager
 	// this runs when package is imported
-	sessionManager := scs.New()
+	// sessionManager := scs.New()
+	cookieStore := sessions.NewCookieStore()
 	//
-	createSessionsTable(db)
-	setDefaultSessionConfig(sessionManager)
+	// createSessionsTable(db)
+	setDefaultSessionConfig(cookieStore)
 	//
-	return sessionManager
+	return cookieStore
 }
 
-func setDefaultSessionConfig(scs *scs.SessionManager) {
-	scs.Lifetime = 24 * time.Hour
-	scs.Cookie.Persist = true
-	scs.Cookie.HttpOnly = true
-	scs.Cookie.Secure = utils.GetEnvAsBool("HTTPS", false) // enable with HTTPS
-}
-
-func createSessionsTable(db *sql.DB) error {
-	query := `
-    CREATE TABLE IF NOT EXISTS sessions (
-        token TEXT PRIMARY KEY,
-        data BYTEA NOT NULL,
-        expiry TIMESTAMPTZ NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions (expiry);`
-
-	_, err := db.Exec(query)
-	if err != nil {
-		return fmt.Errorf("failed to create sessions table: %v", err)
-	}
-	log.Println("'Sessions' table created/verified successfully")
-	return nil
+func setDefaultSessionConfig(store *sessions.CookieStore) {
+	//store.Options.MaxAge = 24 * time.Hour * time.Second
+	store.Options.Path = "/"
+	store.Options.HttpOnly = true
+	store.Options.Secure = utils.GetEnvAsBool("HTTPS", false) // enable with HTTPS
 }

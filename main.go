@@ -12,7 +12,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/v2"
+	"github.com/gorilla/sessions"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
@@ -20,7 +20,7 @@ import (
 
 func main() {
 	// session manager configs
-	var sessionManager *scs.SessionManager
+	var sessionManager *sessions.CookieStore
 	var providers []types.ProviderConfig
 	// gob.Register(domain.LocalUser{})
 	gob.Register(goth.User{})
@@ -43,7 +43,7 @@ func main() {
 	app := handlers.NewApp(providers, sessionManager)
 	router := http.NewServeMux()
 	// TODO
-	auth := services.NewAuth(,providers)
+	auth := services.NewAuth(providers, sessionManager)
 	//
 	router.HandleFunc("GET /auth/{provider}", app.ProviderHandler)
 	router.HandleFunc("GET /auth/{provider}/callback", app.HandleProviderCallback)

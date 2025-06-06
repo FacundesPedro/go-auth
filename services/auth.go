@@ -10,7 +10,7 @@ import (
 
 type AuthService struct{}
 
-func NewAuth(store sessions.Store, providers []types.ProviderConfig) *AuthService {
+func NewAuth(providers []types.ProviderConfig, store sessions.Store) *AuthService {
 	gothic.Store = store
 	//
 	goth.UseProviders(
