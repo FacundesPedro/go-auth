@@ -42,8 +42,8 @@ func main() {
 	//
 	app := handlers.NewApp(providers, sessionManager)
 	router := http.NewServeMux()
-	//
-	services.NewAuth(providers)
+	// TODO
+	auth := services.NewAuth(,providers)
 	//
 	router.HandleFunc("GET /auth/{provider}", app.ProviderHandler)
 	router.HandleFunc("GET /auth/{provider}/callback", app.HandleProviderCallback)

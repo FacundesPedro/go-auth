@@ -3,17 +3,21 @@ package services
 import (
 	"FacundesPedro/go-auth/types"
 
+	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
 )
 
-func NewAuth(providers []types.ProviderConfig) {
-	// gothic.Store = nil
+type AuthService struct{}
+
+func NewAuth(store sessions.Store, providers []types.ProviderConfig) *AuthService {
+	gothic.Store = store
 	//
 	goth.UseProviders(
 		mapGothProviders(providers)...,
 	)
 	//
-	// return
+	return &AuthService{}
 }
 
 func mapGothProviders(providers []types.ProviderConfig) []goth.Provider {
