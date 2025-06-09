@@ -54,11 +54,14 @@ func (a *App) HandleProviderCallback(w http.ResponseWriter, r *http.Request) {
 		Image: user.AvatarURL,
 	}
 	// a.sessionManager.Put(r.Context(), "user", user)
-	log.Print(u.Email)
 	log.Print(constants.USER_SUCCESS_AUTHENTICATED(u.Name))
 	// persist
-	a.auth.SaveUserSession(w, r, *u)
+	err = a.auth.SaveUserSession(w, r, *u)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	//redirect
-	w.WriteHeader(http.StatusTemporaryRedirect)
 	w.Header().Set("Location", "/")
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
