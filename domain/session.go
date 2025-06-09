@@ -2,18 +2,17 @@ package domain
 
 import (
 	"FacundesPedro/go-auth/utils"
-	"database/sql"
 
 	"github.com/gorilla/sessions"
 )
 
-func NewSessionManager(db *sql.DB) *sessions.CookieStore {
+func NewSessionManager(key string) *sessions.CookieStore {
 
 	// var SessionManager *scs.SessionManager
 	// Initialize the session manager
 	// this runs when package is imported
 	// sessionManager := scs.New()
-	cookieStore := sessions.NewCookieStore()
+	cookieStore := sessions.NewCookieStore([]byte(key))
 	//
 	// createSessionsTable(db)
 	setDefaultSessionConfig(cookieStore)
@@ -24,6 +23,7 @@ func NewSessionManager(db *sql.DB) *sessions.CookieStore {
 func setDefaultSessionConfig(store *sessions.CookieStore) {
 	//store.Options.MaxAge = 24 * time.Hour * time.Second
 	store.Options.Path = "/"
+	store.MaxAge(24 * 60 * 60) // 24 hours * 60 minutes * 60 seconds (86400 seconds)
 	store.Options.HttpOnly = true
 	store.Options.Secure = utils.GetEnvAsBool("HTTPS", false) // enable with HTTPS
 }

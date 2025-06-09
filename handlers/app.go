@@ -1,28 +1,16 @@
 package handlers
 
 import (
+	"FacundesPedro/go-auth/services"
 	"FacundesPedro/go-auth/types"
-
-	"github.com/gorilla/sessions"
-	"golang.org/x/oauth2"
 )
 
 type App struct {
-	sessionManager *sessions.CookieStore
-	providers      []types.ProviderConfig
-}
-
-type AppGoogle struct {
-	config         *oauth2.Config
-	sessionManager *sessions.CookieStore
+	auth      *services.AuthService
+	providers []types.ProviderConfig
 }
 
 // NewApp constructs the application handler
-func NewApp(providers []types.ProviderConfig, sessionManager *sessions.CookieStore) *App {
-	return &App{providers: providers, sessionManager: sessionManager}
-}
-
-// NewApp constructs the application handler
-func NewAppGoogle(config *oauth2.Config, sessionManager *sessions.CookieStore) *AppGoogle {
-	return &AppGoogle{config: config, sessionManager: sessionManager}
+func NewApp(providers []types.ProviderConfig, auth *services.AuthService) *App {
+	return &App{providers: providers, auth: auth}
 }

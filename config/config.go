@@ -14,6 +14,7 @@ type Config struct {
 	GoogleSecretID           string
 	GoogleCallbackURL        string
 	PostgresStringConnection string
+	SessionKey               string
 }
 
 func InitConfig() *Config {
@@ -29,5 +30,6 @@ func InitConfig() *Config {
 		AppBaseURL:               utils.GetEnv("APP_BASE_URL", "http://localhost"),
 		PostgresStringConnection: utils.GetEnvOrError("POSTGRES_STRING_CONNECTION"),
 		Port:                     utils.GetEnv("APP_PORT", "5000"),
+		SessionKey:               utils.GetEnvOrError("APP_SESSION_KEY"),
 	}
 }

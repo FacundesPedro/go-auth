@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"FacundesPedro/go-auth/constants"
+	"FacundesPedro/go-auth/domain"
 	"fmt"
 	"log"
 	"net/http"
 	"text/template"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/markbates/goth/gothic"
 )
 
@@ -23,8 +23,8 @@ func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) ProviderHandler(w http.ResponseWriter, r *http.Request) {
-	provider := chi.URLParam(r, "provider")
-	r = gothic.GetContextWithProvider(r, provider)
+	// provider := chi.URLParam(r, "provider")
+	// r = gothic.GetContextWithProvider(r, provider)
 	//
 	if user, err := gothic.CompleteUserAuth(w, r); err == nil {
 		message := constants.USER_ALREADY_AUTHENTICATED(user.Name)
@@ -39,19 +39,26 @@ func (a *App) ProviderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) HandleProviderCallback(w http.ResponseWriter, r *http.Request) {
-	provider := chi.URLParam(r, "provider")
-	r = gothic.GetContextWithProvider(r, provider)
+	// provider := chi.URLParam(r, "provider")
+	//r = r.WithContext(context.WithValue(context.Background(), "provider"))
 
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		fmt.Fprintln(w, err.Error())
 		return
 	}
-	//
+	// local user
+	u := &domain.LocalUser{
+		Name:  user.Name,
+		Email: user.Email,
+		Image: user.AvatarURL,
+	}
 	// a.sessionManager.Put(r.Context(), "user", user)
-	log.Print(user.Name)
-	log.Print(constants.USER_SUCCESS_AUTHENTICATED(user.Name))
-	//
-	//w.WriteHeader(http.StatusTemporaryRedirect)
-	//w.Header().Set("Location", "/")
+	log.Print(u.Email)
+	log.Print(constants.USER_SUCCESS_AUTHENTICATED(u.Name))
+	// persist
+	a.auth.SaveUserSession(w, r, *u)
+	//redirect
+	w.WriteHeader(http.StatusTemporaryRedirect)
+	w.Header().Set("Location", "/")
 }

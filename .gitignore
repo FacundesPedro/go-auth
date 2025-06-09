@@ -1,5 +1,5 @@
 # Ignora binários
-go-auth
+*go-auth
 *.exe
 *.exe~
 *.dll

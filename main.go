@@ -11,47 +11,50 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/alexedwards/scs/postgresstore"
 	"github.com/gorilla/sessions"
-	_ "github.com/joho/godotenv/autoload"
-	"github.com/markbates/goth"
+
+	// _ "github.com/joho/godotenv/autoload"
 	"github.com/markbates/goth/providers/google"
 )
 
 func main() {
-	// session manager configs
-	var sessionManager *sessions.CookieStore
+	// main components
+	var sessionStore *sessions.CookieStore
 	var providers []types.ProviderConfig
-	// gob.Register(domain.LocalUser{})
-	gob.Register(goth.User{})
+	var env *config.Config
+	var app *handlers.App
+	var router *http.ServeMux
+	var authService *services.AuthService
 	//
-	env := config.InitConfig()
+	gob.Register(domain.LocalUser{})
+	//
+	env = config.InitConfig()
 	// database for persistent things
-	db := domain.InitDb("postgres", env.PostgresStringConnection)
-	domain.PingDb("postgres", db)
+	// db := domain.InitDb("postgres", env.PostgresStringConnection)
+	// domain.PingDb("postgres", db)
 	//
 	providers = append(providers,
 		types.ProviderConfig{
-			Name:   "google",
-			Config: google.New(env.GoogleClientID, env.GoogleSecretID, env.GoogleCallbackURL),
+			Name: "google",
+			Config: google.New(env.GoogleClientID, env.GoogleSecretID, env.GoogleCallbackURL,
+				"profile", "email"),
 		},
 	)
 	// Initialize the session manager
-	sessionManager = domain.NewSessionManager(db)
-	sessionManager.Store = postgresstore.New(db)
+	sessionStore = domain.NewSessionManager(env.SessionKey)
+	// activate goth and session store
+	authService = services.NewAuth(providers, sessionStore)
 	//
-	app := handlers.NewApp(providers, sessionManager)
-	router := http.NewServeMux()
-	// TODO
-	auth := services.NewAuth(providers, sessionManager)
+	app = handlers.NewApp(providers, authService)
+	router = http.NewServeMux()
 	//
 	router.HandleFunc("GET /auth/{provider}", app.ProviderHandler)
 	router.HandleFunc("GET /auth/{provider}/callback", app.HandleProviderCallback)
 	router.HandleFunc("GET /auth/login", app.LoginHandler)
 	// router.HandleFunc("/auth/refresh", app.RefreshHandler)
 	// defer's
-	defer db.Close()
+	// defer db.Close()
 	//
 	log.Printf("Server starting on %s:%s", env.AppBaseURL, env.Port)
-	http.ListenAndServe(fmt.Sprintf(":%s", env.Port), sessionManager.LoadAndSave(router))
+	http.ListenAndServe(fmt.Sprintf(":%s", env.Port), router)
 }
