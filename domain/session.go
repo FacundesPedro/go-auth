@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+// TODO: rewrite this to the the new postgreStore on maiN!
 func SetDefaultSessionConfig(store *sessions.CookieStore) {
 	//store.Options.MaxAge = 24 * time.Hour * time.Second
 	store.Options.Path = "/"
