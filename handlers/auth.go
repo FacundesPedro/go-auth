@@ -15,7 +15,7 @@ import (
 func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("./public/index.html")
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -29,8 +29,8 @@ func (a *App) ProviderHandler(w http.ResponseWriter, r *http.Request) {
 	if user, err := gothic.CompleteUserAuth(w, r); err == nil {
 		message := constants.USER_ALREADY_AUTHENTICATED(user.Name)
 		//
-		log.Print(message)
-		fmt.Fprint(w, message)
+		log.Println(message)
+		http.Error(w, fmt.Errorf("user is already authenticated").Error(), http.StatusBadRequest)
 		//
 		return
 	}
@@ -39,9 +39,6 @@ func (a *App) ProviderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) HandleProviderCallback(w http.ResponseWriter, r *http.Request) {
-	// provider := chi.URLParam(r, "provider")
-	//r = r.WithContext(context.WithValue(context.Background(), "provider"))
-
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		fmt.Fprintln(w, err.Error())

@@ -14,12 +14,13 @@ import (
 	"github.com/gorilla/sessions"
 
 	// _ "github.com/joho/godotenv/autoload"
+
 	"github.com/markbates/goth/providers/google"
 )
 
 func main() {
 	// main components
-	var sessionStore *sessions.CookieStore
+	var sessionStore sessions.Store
 	var providers []types.ProviderConfig
 	var env *config.Config
 	var app *handlers.App
@@ -30,8 +31,11 @@ func main() {
 	//
 	env = config.InitConfig()
 	// database for persistent things
-	// db := domain.InitDb("postgres", env.PostgresStringConnection)
-	// domain.PingDb("postgres", db)
+	db := domain.InitDb("postgres", env.PostgresStringConnection)
+	domain.PingDb("postgres", db)
+	//
+	// psqlStore := services.NewPostgresStore(db, "_session")
+	// gothic.Store = psqlStore
 	//
 	providers = append(providers,
 		types.ProviderConfig{
@@ -40,8 +44,8 @@ func main() {
 				"profile", "email"),
 		},
 	)
-	// Initialize the session manager
-	sessionStore = domain.NewSessionManager(env.SessionKey)
+	// Initialize the session store (can use de default one in case of test)
+	sessionStore = services.NewSessionStore(db, "_session", "sess_", []byte(env.SessionKey))
 	// activate goth and session store
 	authService = services.NewAuth(providers, sessionStore)
 	//
@@ -50,10 +54,10 @@ func main() {
 	//
 	router.HandleFunc("GET /auth/{provider}", app.ProviderHandler)
 	router.HandleFunc("GET /auth/{provider}/callback", app.HandleProviderCallback)
-	router.HandleFunc("GET /auth/login", app.LoginHandler)
+	router.HandleFunc("GET /login", app.LoginHandler)
 	// router.HandleFunc("/auth/refresh", app.RefreshHandler)
 	// defer's
-	// defer db.Close()
+	defer db.Close()
 	//
 	log.Printf("Server starting on %s:%s", env.AppBaseURL, env.Port)
 	http.ListenAndServe(fmt.Sprintf(":%s", env.Port), router)

@@ -18,7 +18,7 @@ func InitDb(sqlDriver, connectionString string) *sql.DB {
 
 func PingDb(sqlDriver string, db *sql.DB) {
 	if err := db.Ping(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("DB[%s]: %s", sqlDriver, err)
 	} else {
 		log.Printf("DB[%s]: Successfully connected!", sqlDriver)
 	}

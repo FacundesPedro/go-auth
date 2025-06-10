@@ -15,6 +15,8 @@ type Config struct {
 	GoogleCallbackURL        string
 	PostgresStringConnection string
 	SessionKey               string
+	isProd                   bool
+	isHttps                  bool
 }
 
 func InitConfig() *Config {
@@ -31,5 +33,7 @@ func InitConfig() *Config {
 		PostgresStringConnection: utils.GetEnvOrError("POSTGRES_STRING_CONNECTION"),
 		Port:                     utils.GetEnv("APP_PORT", "5000"),
 		SessionKey:               utils.GetEnvOrError("APP_SESSION_KEY"),
+		isProd:                   utils.GetEnvAsBool("APP_IS_PRODUCTION", false),
+		isHttps:                  utils.GetEnvAsBool("APP_IS_HTTPS", false),
 	}
 }
