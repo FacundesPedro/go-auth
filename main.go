@@ -18,6 +18,7 @@ import (
 	"github.com/markbates/goth/providers/google"
 )
 
+// TODO: check for every http error, fmt wrting stream and log for better control!
 func main() {
 	// main components
 	var sessionStore sessions.Store
