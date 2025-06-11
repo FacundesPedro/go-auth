@@ -33,7 +33,7 @@ func main() {
 	env = config.InitConfig()
 	// database for persistent things
 	db := domain.InitDb("postgres", env.PostgresStringConnection)
-	domain.PingDb("postgres", db)
+	// domain.PingDb("postgres", db)
 	//
 	// psqlStore := services.NewPostgresStore(db, "_session")
 	// gothic.Store = psqlStore
@@ -46,7 +46,7 @@ func main() {
 		},
 	)
 	// Initialize the session store (can use de default one in case of test)
-	sessionStore = services.NewSessionStore(db, "_session", "sess_", []byte(env.SessionKey))
+	sessionStore = services.NewSessionStore(db, env, "_session", "sess_", []byte(env.SessionKey))
 	// activate goth and session store
 	authService = services.NewAuth(providers, sessionStore)
 	//

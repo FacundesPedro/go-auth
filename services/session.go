@@ -1,6 +1,9 @@
 package services
 
 import (
+	"FacundesPedro/go-auth/config"
+	"FacundesPedro/go-auth/domain"
+	"FacundesPedro/go-auth/utils"
 	"database/sql"
 	"encoding/base32"
 	"log"
@@ -21,12 +24,20 @@ type PostgresStore struct {
 	keyPrefix string
 }
 
-func NewSessionStore(db *sql.DB, tableName, keyPrefix string, keyPairs ...[]byte) sessions.Store {
-	return newPostgresStore(db, tableName, keyPrefix, keyPairs...)
+func NewSessionStore(db *sql.DB, env *config.Config, tableName, keyPrefix string, keyPairs ...[]byte) sessions.Store {
+	if env.AppEnviroment == "production" {
+		return newPostgresStore(db, tableName, keyPrefix, keyPairs...)
+	}
+	//
+	return sessions.NewCookieStore(keyPairs...)
 }
 
 // NewPostgresStore creates a new instance of PostgresStore, ensuring the table exists.
 func newPostgresStore(db *sql.DB, tableName, keyPrefix string, keyPairs ...[]byte) sessions.Store {
+	// database for persistent things
+	// db := domain.InitDb("postgres", connectionString)
+	domain.PingDb("postgres", db)
+	//
 	createTable := `
 	CREATE TABLE IF NOT EXISTS ` + tableName + ` (
 		session_key TEXT PRIMARY KEY,
@@ -43,8 +54,11 @@ func newPostgresStore(db *sql.DB, tableName, keyPrefix string, keyPairs ...[]byt
 		keyPrefix: keyPrefix,
 		Codecs:    securecookie.CodecsFromPairs(keyPairs...),
 		Options: &sessions.Options{
-			Path:   "/",
-			MaxAge: 86400 * 1, // 1 days
+			// store.MaxAge(24 * 60 * 60) // 24 hours * 60 minutes * 60 seconds (86400 seconds)
+			HttpOnly: true,
+			Secure:   utils.GetEnvAsBool("APP_IS_HTTPS", false),
+			Path:     "/",
+			MaxAge:   86400 * 1, // 1 days
 		},
 	}
 }

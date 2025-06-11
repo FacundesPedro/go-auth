@@ -12,5 +12,5 @@ func SetDefaultSessionConfig(store *sessions.CookieStore) {
 	store.Options.Path = "/"
 	store.MaxAge(24 * 60 * 60) // 24 hours * 60 minutes * 60 seconds (86400 seconds)
 	store.Options.HttpOnly = true
-	store.Options.Secure = utils.GetEnvAsBool("HTTPS", false) // enable with HTTPS
+	store.Options.Secure = utils.GetEnvAsBool("APP_IS_HTTPS", false) // enable with HTTPS
 }
