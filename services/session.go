@@ -33,7 +33,7 @@ func NewSessionStore(db *sql.DB, env *config.Config, tableName, keyPrefix string
 }
 
 // NewPostgresStore creates a new instance of PostgresStore, ensuring the table exists.
-func newPostgresStore(db *sql.DB, tableName, keyPrefix string, keyPairs ...[]byte) sessions.Store {
+func newPostgresStore(db *sql.DB, tableName string, keyPrefix string, keyPairs ...[]byte) sessions.Store {
 	// database for persistent things
 	// db := domain.InitDb("postgres", connectionString)
 	domain.PingDb("postgres", db)
